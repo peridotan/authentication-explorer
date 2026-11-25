@@ -1,0 +1,140 @@
+name: Authentication Explorer Live QA
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/live-qa.yml'
+permissions:
+  contents: read
+jobs:
+  live-qa:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install playwright==1.55.0
+      - run: python -m playwright install --with-deps chromium
+      - name: Test the deployed public site
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+          from playwright.sync_api import sync_playwright, expect
+
+          url = 'https://peridotan.github.io/authentication-explorer/'
+          expected = Path('index.html').read_bytes()
+          methods = ['pw','totp','sms','push','pk']
+          blocked = {'replay:totp','replay:sms','replay:push','replay:pk','phish:pk','db:sms','db:push','db:pk'}
+          pairs = {a+':'+m for a in ('replay','phish','db') for m in methods} | {'sim:sms','fatigue:push'}
+          with sync_playwright() as p:
+              browser = p.chromium.launch(args=['--no-sandbox'])
+              page = browser.new_page(viewport={'width':1440,'height':800})
+              errors = []
+              page.on('pageerror', lambda error: errors.append(str(error)))
+              response = page.goto(url, wait_until='load', timeout=60000)
+              assert response and response.status == 200, 'Public HTTP status'
+              actual = response.body()
+              assert actual == expected, 'Deployed HTML differs from checked-out HTML'
+              print('Deployed HTML SHA256:', hashlib.sha256(actual).hexdigest(), flush=True)
+              expect(page).to_have_title('Authentication Explorer v1.0.0')
+              expect(page.locator('[data-mode]')).to_have_count(2)
+              def step():
+                  return page.evaluate('STATE.step')
+              def controls():
+                  page.locator('#reset').click()
+                  assert step() == 0
+                  page.locator('#next').click()
+                  assert step() == 1
+                  page.locator('#prev').click()
+                  assert step() == 0
+              def autoplay():
+                  page.locator('#reset').click()
+                  page.locator('#play').click()
+                  page.wait_for_function('STATE.step >= 1', timeout=8000)
+                  page.locator('#play').click()
+                  stopped = step()
+                  page.wait_for_timeout(2100)
+                  assert step() == stopped
+                  page.locator('#timeline button').nth(page.locator('#timeline button').count()-2).click()
+                  page.locator('#play').click()
+                  page.wait_for_function('STATE.timer === null', timeout=8000)
+                  assert page.locator('#next').is_disabled()
+                  page.locator('#play').click()
+                  assert step() == 0
+                  page.locator('#play').click()
+                  page.locator('#reset').click()
+              normal_steps = attack_steps = comparisons = unmatched = 0
+              for method in methods:
+                  page.locator('[data-mode=normal]').click()
+                  page.locator('#method').select_option(method)
+                  controls()
+                  if method == 'pw':
+                      autoplay()
+                  n = page.locator('#timeline button').count()
+                  for i in range(n):
+                      assert step() == i
+                      assert page.locator('#diagram svg').is_visible()
+                      normal_steps += 1
+                      if i+1 < n:
+                          page.locator('#next').click()
+                  assert page.locator('#next').is_disabled()
+              page.locator('[data-mode=attack]').click()
+              expect(page.locator('#comparison')).to_be_visible()
+              expect(page.locator('[data-compare]')).to_have_count(17)
+              expect(page.locator('#matrix .neutral')).to_have_count(8)
+              assert set(page.locator('[data-compare]').evaluate_all('(es)=>es.map(e=>e.dataset.compare)')) == pairs
+              for pair in sorted(pairs):
+                  cell = page.locator('[data-compare="'+pair+'"]')
+                  assert ('ok' if pair in blocked else 'bad') in cell.get_attribute('class').split()
+                  cell.click()
+                  controls()
+                  if pair == 'phish:pk':
+                      autoplay()
+                  n = page.locator('#timeline button').count()
+                  for i in range(n):
+                      assert step() == i
+                      assert page.locator('#diagram svg').is_visible()
+                      attack_steps += 1
+                      compare = page.locator('#stepCompare')
+                      if compare.is_enabled():
+                          before = page.locator('#progress').inner_text()
+                          compare.click()
+                          expect(compare).to_have_attribute('aria-pressed','true')
+                          assert step() == i
+                          compare.click()
+                          expect(compare).to_have_attribute('aria-pressed','false')
+                          assert step() == i and page.locator('#progress').inner_text() == before
+                          comparisons += 1
+                      else:
+                          unmatched += 1
+                      if i+1 < n:
+                          page.locator('#next').click()
+                  assert ('ok' if pair in blocked else 'bad') in page.locator('#result').get_attribute('class').split()
+                  page.locator('#backMatrix').click()
+                  expect(page.locator('#comparison')).to_be_visible()
+              assert (normal_steps,attack_steps,comparisons,unmatched) == (59,197,160,37)
+              page.locator('[data-mode=normal]').click()
+              page.locator('#theme').click()
+              assert page.locator('body').evaluate("e=>e.classList.contains('light')")
+              page.locator('#theme').click()
+              assert not page.locator('body').evaluate("e=>e.classList.contains('light')")
+              for size in (110,120,100):
+                  page.locator('#font').click()
+                  expect(page.locator('#font')).to_have_text('文字 '+str(size)+'%')
+              for width in (360,390):
+                  page.set_viewport_size({'width':width,'height':844})
+                  page.locator('[data-mode=normal]').click()
+                  controls()
+                  page.locator('[data-mode=attack]').click()
+                  page.locator('[data-compare="phish:pk"]').click()
+                  controls()
+                  page.locator('#backMatrix').click()
+                  expect(page.locator('#comparison')).to_be_visible()
+              assert not errors, errors
+              print('PASS: live URL; 59 normal steps; 197 attack steps; 160 comparisons; 37 unmatched; 17 matrix round trips; 8 blocked; 9 successful attacks; playback; theme; fonts; mobile basic operations; zero page errors.', flush=True)
+              browser.close()
+          PY
