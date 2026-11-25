@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Authentication Explorer v1.0.0</title><meta name="description" content="5つの認証方式の仕組みと攻撃耐性を、図解と正常系・異常系の比較で学ぶ日本語のWeb教材。">
+<style>
+:root{color-scheme:dark;--bg:#101722;--panel:#182330;--panel2:#111c29;--line:#34465b;--text:#e9f0f7;--muted:#9fb0c3;--accent:#64c5ec;--ok:#43d6a0;--bad:#ff7885;--warn:#f5c66a;--font:14px}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:var(--font)/1.55 system-ui,-apple-system,"Segoe UI","Meiryo",sans-serif}body.light{color-scheme:light;--bg:#edf2f7;--panel:#fff;--panel2:#f4f7fa;--line:#c4d0dc;--text:#182b3d;--muted:#52677b;--accent:#006b9a;--ok:#087a51;--bad:#b9243c;--warn:#946300}button,select{font:inherit;color:var(--text);background:var(--panel2);border:1px solid var(--line);border-radius:7px;padding:7px 10px;cursor:pointer}button:hover,select:hover{border-color:var(--accent)}button:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}button:disabled{opacity:.4;cursor:default}button.selected{border-color:var(--accent);color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--panel2))}button.primary{background:var(--accent);border-color:var(--accent);color:var(--bg);font-weight:750}body.light button.primary{color:white}a{color:var(--accent)}header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 18px;border-bottom:1px solid var(--line);background:var(--panel)}h1{font-size:1.35em;margin:0;letter-spacing:.015em}h1 small{font-size:.61em;color:var(--muted);font-weight:500;margin-left:8px}.sub{color:var(--muted);font-size:.83em}.tools,.tabs,.controls,.legend{display:flex;gap:7px;flex-wrap:wrap;align-items:center}.wrap{max-width:1800px;margin:auto;padding:8px 18px}.tabs{margin-bottom:10px}.tabs button{font-weight:650}.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;min-width:0}.config{display:flex;align-items:center;gap:12px;padding:10px 12px;margin-bottom:10px;flex-wrap:wrap}.config label{display:flex;align-items:center;gap:7px;color:var(--muted);font-weight:650}.config select{color:var(--text);max-width:100%}.tag{font-size:.76em;letter-spacing:.08em;color:var(--accent);font-weight:750}h2{font-size:1em;margin:0}h3{font-size:1.12em;margin:0 0 5px}.workspace{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:10px;align-items:stretch}.main{display:flex;flex-direction:column;min-height:0}.head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line);flex-wrap:wrap}.diagram{padding:5px 8px;flex:1;display:flex;align-items:center;justify-content:center;min-height:240px}.diagram svg{display:block;width:100%;height:auto;max-height:305px;overflow:visible}.node{fill:var(--panel2);stroke:var(--line);stroke-width:1.5}.node.active{stroke:var(--accent);stroke-width:2.8}.node.risk{stroke:var(--bad);stroke-width:2.8}.node.safe{stroke:var(--ok);stroke-width:2.8}.node.dim{opacity:.65}.svg-title{fill:var(--text);font-size:16px;font-weight:750}.svg-sub{fill:var(--muted);font-size:12.5px}.svg-state{fill:var(--text);font-size:12px;font-weight:600}.route{fill:none;stroke-width:2.8;stroke-linejoin:round;stroke-linecap:round}.route.normal{stroke:var(--accent)}.route.attack{stroke:var(--bad);stroke-dasharray:7 4}.route.block{stroke:var(--ok);stroke-dasharray:5 4}.route.success{stroke:var(--ok)}.route.pending{stroke:var(--warn);stroke-dasharray:5 5;opacity:.85}.route-label.pending{fill:var(--warn)}.route.ghost{stroke:var(--muted);stroke-dasharray:5 5;opacity:.7}.route-label{font-size:13px;font-weight:750;paint-order:stroke;stroke:var(--panel);stroke-width:5;stroke-linejoin:round}.route-label.normal{fill:var(--accent)}.route-label.attack{fill:var(--bad)}.route-label.block,.route-label.success{fill:var(--ok)}.route-label.ghost{fill:var(--muted);opacity:.92}.legend{padding:0 12px 8px;color:var(--muted);font-size:.82em;gap:15px}.swatch{display:inline-block;width:20px;vertical-align:middle;border-top:3px solid var(--accent);margin-right:5px}.swatch.attack{border-color:var(--bad);border-top-style:dashed}.swatch.safe{border-color:var(--ok)}.controls{padding:9px 12px;border-top:1px solid var(--line)}.controls .spacer{flex:1}.progress{color:var(--muted);font-variant-numeric:tabular-nums;font-weight:650}.side{display:flex;flex-direction:column;min-width:0}.sidecontent{padding:10px 12px}.timeline{display:grid;gap:4px;margin-bottom:8px}.step{display:flex;text-align:left;align-items:center;gap:7px;padding:3px 7px;border-color:transparent;background:transparent;width:100%;font-size:.9em}.step span.num{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--panel2);border:1px solid var(--line);flex:none;font-size:.8em}.step.done{color:var(--muted)}.step.selected{background:color-mix(in srgb,var(--accent) 10%,var(--panel2));border-color:var(--accent);color:var(--text)}.step.selected .num{background:var(--accent);color:var(--bg);border-color:var(--accent)}.explain{border-top:1px solid var(--line);padding-top:10px}.explain p{margin:5px 0 10px}.result{padding:8px 10px;border:1px solid var(--line);border-radius:7px;background:var(--panel2);font-weight:700}.result.ok{border-color:var(--ok);color:var(--ok)}.result.bad{border-color:var(--bad);color:var(--bad)}.result.warn{border-color:var(--warn);color:var(--warn)}.note{font-size:.85em;color:var(--muted);margin-top:8px}.bottom{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.info{padding:10px 12px}.info p{margin:3px 0}.info h2{margin-bottom:5px}.info .sub{font-size:.86em}details{margin-top:10px;color:var(--muted);font-size:.86em}summary{cursor:pointer;color:var(--text)}.ref{overflow-wrap:anywhere}.compare{padding:14px;overflow:auto}.compare table{width:100%;border-collapse:collapse;min-width:560px}.compare th,.compare td{padding:10px;border-bottom:1px solid var(--line);text-align:center}.compare th:first-child{text-align:left}.compare td button{width:100%;white-space:normal}.compare .ok{color:var(--ok)}.compare .bad{color:var(--bad)}.compare .warn{color:var(--warn)}[hidden]{display:none!important}@media(min-width:761px) and (max-height:800px){.diagram svg{max-height:280px}.head{padding:7px 12px}.controls{padding:6px 12px}.sidecontent{padding:7px 10px}.step{padding:2px 5px}.timeline{gap:2px}.info{padding:7px 10px}.bottom{margin-top:7px}.config{padding:7px 12px}.tabs,.config{margin-bottom:7px}}@media(max-width:1050px){.workspace{grid-template-columns:minmax(0,1fr) 280px}.diagram{min-height:230px}}@media(max-width:760px){header{align-items:flex-start;flex-wrap:wrap;padding:10px}.wrap{padding:9px}.workspace,.bottom{grid-template-columns:1fr}.diagram{overflow-x:auto;justify-content:flex-start;min-height:0}.diagram svg{min-width:670px;max-height:none}.config{align-items:stretch}.config label{flex-wrap:wrap}.controls .spacer{display:none}.sidecontent{padding:10px}.tools{gap:4px}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
+
+.compare table{min-width:840px;table-layout:fixed}.compare th:first-child{width:19%}.compare td,.compare th{padding:7px 5px;overflow-wrap:anywhere}.compare td button{font-size:.86em;padding:6px 4px}.compare .neutral{color:var(--muted)}
+/* Passkey credential locations: independent of the transient STEP highlight. */
+.credential-chip rect{fill:var(--panel);stroke:currentColor;stroke-width:1.2}
+.credential-chip.private{color:var(--warn)}.credential-chip.public{color:var(--accent)}
+.credential-chip text{fill:currentColor;font-size:13px;font-weight:750}
+.credential-chip.pending rect{stroke-dasharray:3 2}
+
+.credential-chip.secret{color:var(--warn)}.credential-chip.record{color:var(--accent)}.credential-chip.temporary{color:var(--muted)}
+.credential-chip.compact text{font-size:11px;text-anchor:middle}.credential-chip.temporary rect{stroke-dasharray:3 2}
+.factorline{display:flex;gap:5px;flex-wrap:wrap;margin:3px 0 5px}.factor-badge{border:1px solid var(--line);border-radius:5px;padding:2px 7px;font-size:.82em;color:var(--muted)}.factor-badge.on{color:var(--accent);border-color:var(--accent);font-weight:650}.factor-badge.alt{color:var(--warn);border-color:var(--warn);border-style:dashed}.factor-detail{font-size:.85em;color:var(--muted);margin:3px 0}.credential-legend{font-size:.8em;color:var(--muted)}
+
+
+/* Diagram-first layout: 01 fills available first-screen space; 02–04 below. */
+.workspace{display:flex;flex-direction:column;gap:10px;height:auto;align-items:stretch}
+.main{overflow:hidden;height:auto;flex:none}.side{display:block;overflow:visible;height:auto;flex:none}
+.main>.head,.main>.legend,.main>.controls{flex:none}
+.diagram{position:relative;flex:none;min-height:0;height:var(--stage-height,340px);padding:0;overflow:hidden}
+.diagram svg{position:absolute;left:8px;top:5px;width:calc(100% - 16px);height:calc(100% - 10px);max-height:none;min-width:0;overflow:visible}
+.sidecontent{display:grid;height:auto;flex:none;grid-template-columns:minmax(220px,1fr) minmax(0,2fr);gap:16px;align-items:start;overflow:visible;min-height:0;padding:12px}
+.timeline{height:auto;max-height:none;overflow:visible;scrollbar-gutter:auto;margin:0}
+.explain{height:auto;min-height:0;min-width:0;overflow:visible;overflow-wrap:anywhere;scrollbar-gutter:auto;border-top:0;border-left:1px solid var(--line);padding:0 0 0 16px}
+.current-step{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:650;color:var(--text);padding-left:8px}
+.controls .progress{flex:none}.controls .spacer{display:none}
+@media(max-width:760px){.sidecontent{grid-template-columns:1fr;gap:10px}.explain{border-left:0;border-top:1px solid var(--line);padding:10px 0 0}.current-step{order:1;flex:1 1 100%;padding-left:0}.diagram svg{min-width:0}}
+.attack-legend{display:none}body.attack-mode .attack-legend{display:inline-flex;align-items:center}.swatch.pending{border-color:var(--warn);border-top-style:dashed}.swatch.ghost{border-color:var(--muted);border-top-style:dashed}#attackInputs{display:flex;flex-wrap:wrap;gap:5px 12px;align-items:center;flex-basis:100%}#attackInputs select{padding:3px 7px}#attackInputs label{font-size:.85em}.attack-summary{flex-basis:100%}.attack-result{font-size:.83em;color:var(--muted);flex:0 1 auto;max-width:37%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.attack-result.ok{color:var(--ok)}.attack-result.bad{color:var(--bad)}.attack-result.warn{color:var(--warn)}
+.credential-chip.stolen{color:var(--bad)}.credential-chip.stolen rect{stroke-dasharray:3 2}
+
+/* Same diagram geometry in 01 and 02. Reserve space for the largest condition row. */
+body.shared-mode #config{min-height:calc(7.8em + 12px);align-content:flex-start;row-gap:6px}
+body.shared-mode #attackInputs{row-gap:4px}
+body.shared-mode .attack-legend{display:inline-flex;align-items:center;visibility:hidden}
+body.shared-mode.attack-mode .attack-legend{visibility:visible}
+body.shared-mode #sim{overflow-anchor:none}
+@media(max-width:1050px){body.shared-mode #config{min-height:calc(10.5em + 12px)}}
+@media(max-width:760px){body.shared-mode #config{min-height:calc(15em + 12px)}body.shared-mode .main>.head{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:1.55em 2.65em;gap:3px;align-items:start}body.shared-mode #diagramTitle{overflow-wrap:anywhere}}
+@media(max-width:480px){body.shared-mode #config{min-height:calc(19em + 12px)}}
+/* Comparison is a read-only view of the matching normal step. */
+#stepCompare{flex:none;min-width:9.4em;white-space:nowrap;font-size:.86em}
+body.shared-mode:not(.attack-mode) #stepCompare{visibility:hidden}
+#stepCompare[aria-pressed="true"]{border-color:var(--accent);color:var(--accent)}
+.user-boundary{fill:none;stroke:var(--muted);stroke-width:1;stroke-dasharray:5 5;opacity:.55}
+.user-boundary-label{fill:var(--muted);font-size:12px;font-weight:600}
+@media(max-width:760px){#stepCompare{min-width:0}body.shared-mode:not(.attack-mode) #stepCompare{display:none}}
+#backMatrix{margin-left:auto;font-size:.86em;white-space:nowrap}.matrix-key{display:flex;gap:8px 22px;flex-wrap:wrap;font-size:.9em}.compare td button{min-height:38px}.compare td button:focus-visible{outline-offset:0}.compare .note{max-width:1100px}.compare #matrix{overflow-x:auto}.compare th[scope="row"]{font-weight:650}
+</style></head><body>
+<header><div><h1>Authentication Explorer <small>v1.0.0</small></h1><div class="sub">認証方式の仕組みと攻撃耐性を図解で学ぶ。PCでの閲覧を推奨（スマートフォンでは構成図が縮小表示され、横スクロールはできません）</div></div><div class="tools"><button id="theme" aria-label="配色を切り替える">ライト</button><button id="font" aria-label="文字サイズを切り替える">文字 100%</button></div></header>
+<main class="wrap"><nav class="tabs" aria-label="学習モード"><button data-mode="normal" class="selected">01 認証方式の仕組み</button><button data-mode="attack">02 認証方式の耐性</button></nav>
+<section class="panel config" id="config"><label id="methodLabel">認証方式 <select id="method"><option value="pw">パスワード</option><option value="totp">パスワード＋TOTP</option><option value="sms">パスワード＋SMS OTP</option><option value="push">パスワード＋プッシュ承認</option><option value="pk">パスキー（UV必須）</option></select></label><label id="scenarioLabel">シナリオ <select id="scenario"></select></label><span class="sub" id="methodHint"></span><button id="backMatrix" hidden>← 耐性比較表へ戻る</button><div id="attackInputs" hidden></div></section>
+<section id="sim"><div class="workspace"><section class="panel main"><div class="head"><h2><span class="tag">01</span> 構成図・認証情報の流れ</h2><span class="sub" id="diagramTitle"></span></div><div class="diagram" id="diagram"></div><div class="legend"><span><i class="swatch"></i>正常な処理</span><span><i class="swatch attack"></i>攻撃・不正利用</span><span><i class="swatch safe"></i>成功・阻止（表示文で区別）</span><span class="attack-legend"><span class="swatch ghost"></span>未成立（×）</span><span id="frameLegend">枠：青＝処理中、緑＝正常認証成功・実際の拒否、赤＝攻撃・侵害</span><span class="credential-legend">情報枠：黄＝秘密・保護対象、青＝登録・検証情報、点線＝処理中・一時情報</span></div><div class="controls"><button id="reset">↺ 最初から</button><button id="prev">◀ 戻る</button><button id="next" class="primary">次へ ▶</button><button id="play">▷ 自動再生</button><button id="stepCompare" aria-pressed="false" hidden>正常系と比較</button><span class="current-step" id="currentStep"></span><span id="attackResult" class="attack-result" hidden></span><span class="progress" id="progress"></span></div></section>
+<aside class="panel side"><div class="head"><h2><span class="tag">02</span> STEP・連動解説</h2></div><div class="sidecontent"><div class="timeline" id="timeline"></div><div class="explain" aria-live="polite"><h3 id="stepTitle"></h3><p id="description"></p><div class="result" id="result"></div><div class="note" id="condition"></div></div></div></aside></div>
+<div class="bottom"><section class="panel info"><h2><span class="tag">03</span> 認証要素・認証情報の所在</h2><div id="factors"></div></section><section class="panel info"><h2><span class="tag">04</span> 学習ポイント</h2><div id="lesson"></div></section></div></section>
+<section class="panel compare" id="comparison" hidden><h2>認証方式の耐性比較</h2><p class="sub">認証方式と攻撃シナリオの組み合わせを選択すると、図解を再生できます。対象外のセルは選択できません。</p><p class="matrix-key"><span class="ok">阻止：不正認証を防げる</span><span class="bad">不正認証成立：防げない</span><span class="neutral">対象外：該当する機能なし</span></p><div id="matrix"></div><p><strong>比較の要点：</strong> パスキーは、対象となる3シナリオすべてで不正認証を阻止します。SMS受信先の乗っ取りとMFA疲労攻撃は対象外です。これは今回の代表条件における結果であり、あらゆる攻撃を防げるという意味ではありません。</p><p class="note">各シナリオの代表条件における結果です。認証情報の漏洩：過去の入力・応答のみ取得、長期秘密なし。DB漏洩：有効なPWを取得できた想定、TOTP共有秘密も利用可能。フィッシング攻撃（AiTM型）：本人は偽サイトを正規と信じて操作し、今回の認証に必要な入力・承認を行う想定。MFA疲労攻撃：本人が単純な承認を誤って行う。番号照合などの強化策は対象外です。対象外は当該攻撃の対象となる機能がない方式です。実製品のすべての実装を保証する評価ではありません。</p></section>
+<details><summary>使い方・前提条件・参考資料</summary><p>01では認証情報（パスキーを含む）は登録済みとし、登録処理は学習対象外です。01では認証方式を選んで再生します。02では耐性比較表のセルを選択して再生し、「正常系と比較」で対応する正常STEPを参照できます。「耐性比較表へ戻る」で別の組み合わせを選べます。STEPを直接選択することも可能です。PC表示では構成図と再生操作を最初の画面内に優先配置し、STEP一覧・解説・補足情報は下に表示します。同じ画面サイズ・文字サイズでは、01と02の切り替えやSTEP・条件の変更でも共通機器の位置・大きさを維持します。方式やシナリオを変更すると最初のSTEPに戻ります。</p><p>教育用の簡略モデルです。01・02の枠は青＝現在の処理、緑＝正規の認証成功・実際の拒否、赤＝攻撃者・侵害を表します。通信が未発生の場合は灰色の点線と×で表し、結果は表示文で確認します。PC・ブラウザーは正規ユーザーが操作し、PC・OSへのログインは完了済みとします。本教材は認証そのものを学習対象とし、システム全体のセキュリティは対象外です。業務サービスの認証を学習対象とし、攻撃者側の環境は攻撃シナリオでのみ表示します。パスワード入力などPC内の操作は、通信経路ではなくPCの状態で示します。業務サービスと認証サーバーは分離し、サーバーサイドWebアプリのOIDC Authorization Code Flowを共通モデルとします。初回アクセス時は双方に認証済みセッションがない前提です。state・nonce・PKCE、クライアント認証、認可判定等の詳細は省略します。パスキーのRPは認証サーバーです。実際の認証通信・攻撃・資格情報取得は行いません。TLSは正常、仕組み・耐性モードでは代替認証とアカウント復旧経路は無効、パスキーは正しく実装されたWebAuthnでUV必須とします。02では代表条件を固定し認証方式の耐性を比較します。フィッシング攻撃（AiTM型）は偽サイトを介して認証処理をリアルタイムで中継する手法です。従来型のフィッシングによる過去の認証情報の漏洩は「認証情報の漏洩」で扱い、別シナリオにはしません。追加認証とパスキーには、PCとは別のスマートフォンを利用する共通モデルを採用します。パスキーはスマートフォン上の認証器を利用し、PC内蔵認証器やセキュリティキー、端末間通信の詳細は対象外です。パスワードのみの場合はスマートフォンを使用しません。SMS・プッシュ通知の配信基盤は省略します。単純なプッシュ承認は従来型の比較対象であり、NIST SP 800-63B-4への適合を示すものではありません。番号照合はプッシュ認証の強化策であり、01・02の独立方式には含めません。同期型とデバイスバウンド型に共通する認証の仕組みを扱います。秘密鍵の同期・移行・復旧、認証ポリシーの設定差、端末のマルウェア感染、認証後のセッション窃取は対象外です。図は現在のSTEPの経路を表示します。02では未成立の経路を示します。攻撃者の赤枠は攻撃の主体を示し、攻撃の成功・失敗そのものを示すものではありません。情報枠は主な論理的な保持場所を示し、実際のデータ形式や全コピーは表しません。黄色は秘密情報や保護が必要な情報、青色は登録・検証用情報、点線は処理中または一時的な情報です。色は情報の種類を区別するものであり、青色や点線の情報が漏洩しても安全という意味ではありません。登録電話番号やアプリ登録情報も保護対象ですが、共有秘密そのものではありません。パスキーのUVはPIN等または生体によるローカル本人確認を想定し、両方が必須という意味ではありません。認証画面の取得やコード交換などは学習目的に合わせてまとめます。双方向の矢印は要求と応答をまとめた表現です。02では01と共通のSTEP名・通信ラベルを使用します。灰色の点線と×は未成立の経路です。送信後の拒否は実際の通信線と拒否の表示を区別します。認証成功時はサービス用セッションの発行まで図示します。企業内サービスの同意・認可は事前承認済みと想定します。耐性モデルは認証情報への影響に限定し、感染経路や攻撃ツールは扱いません。02の入口にある耐性比較表の対象セルを選択すると、代表条件での成否を再生します。認証サーバーDBの読み取り漏洩とサーバー完全侵害を区別します。02では、対象アカウントのIDと認証情報の対応が判明しているモデルとします。IDは認証要素ではありません。パスキーではCredential IDやuserHandleなどの識別情報と公開鍵・署名を区別します。漏洩元を特定しない場合は取得済み状態から開始し、架空の通信線は描きません。OTPは使用済みの再利用を拒否する実装を想定します（RFC 6238 §5.2、NIST SP 800-63B-4）。WebAuthnの署名・チャレンジ・UVの検証はWebAuthn Level 3 §7.2を参照。プッシュ応答の要求への紐づけはモデル上の仮定です。</p><p class="ref">参考：<a href="https://qiita.com/peridotan/items/e30a3cae663b46a50cf2" target="_blank" rel="noopener">デジタルアイデンティティを学ぼう～第2回～MFA（多要素認証）</a> ／ <a href="https://pages.nist.gov/800-63-4/sp800-63b.html" target="_blank" rel="noopener">NIST SP 800-63B-4</a> ／ <a href="https://openid.net/specs/openid-connect-core-1_0.html" target="_blank" rel="noopener">OpenID Connect Core 1.0</a> ／ <a href="https://www.rfc-editor.org/rfc/rfc6238" target="_blank" rel="noopener">RFC 6238（TOTP）</a> ／ <a href="https://www.w3.org/TR/webauthn-3/" target="_blank" rel="noopener">W3C WebAuthn Level 3</a></p></details>
+</main>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const METHODS={pw:{name:'パスワード',hint:'知識要素',factor:'知識：パスワード',store:'サーバー：ソルト付きパスワードハッシュ（想定）',local:'ユーザーが記憶・管理するパスワード',lesson:'有効なパスワードを知る者は本人になりすませる。'},totp:{name:'パスワード＋TOTP',hint:'知識＋所持',factor:'知識：パスワード ／ 所持：OTP生成器',store:'サーバー：パスワードハッシュ、TOTP共有秘密（保護して保存）',local:'スマートフォンのTOTP生成アプリ：共有秘密',lesson:'パスワード漏洩には強いが、入力するOTPはリアルタイムの中継に弱い。'},pk:{name:'パスキー（UV必須）',hint:'所持＋ローカル本人確認',factor:'所持：秘密鍵の利用 ／ UV：PINまたは生体情報など',store:'サーバー：公開鍵・Credential ID等',local:'スマートフォンの認証器：秘密鍵（認証サーバーへ送信しない）',lesson:'正規RPに紐づく署名でフィッシング耐性を得る。'}};
+Object.assign(METHODS,{
+ sms:{name:'パスワード＋SMS OTP',hint:'知識＋登録電話番号の所持',factor:'知識：パスワード ／ 所持：SMS受信端末',local:'スマートフォン：SMSで受信した一時コード',store:'サーバー：パスワードハッシュ・登録電話番号・一時コードの検証情報',lesson:'SMS OTPはAiTMに中継され得る。電話番号の乗っ取りにも弱く、NISTではPSTNを使う認証を制限付きとして扱う。'},
+ push:{name:'パスワード＋プッシュ承認',hint:'知識＋登録アプリの所持',factor:'知識：パスワード ／ 所持：登録済み認証アプリ',local:'スマートフォン：登録済みアプリの認証情報',store:'サーバー：パスワードハッシュ・アプリ登録情報',lesson:'単純な承認は誤承認やMFA疲労攻撃に弱い。NIST SP 800-63B-4のOOB認証要件は認証秘密のチャネル間転送を求めるため、この承認だけのモデルは適合方式を示さない。'},
+ match:{name:'パスワード＋番号照合',hint:'知識＋登録アプリの所持',factor:'知識：パスワード ／ 所持：登録済み認証アプリ',local:'スマートフォン：登録済みアプリの認証情報',store:'サーバー：パスワードハッシュ・アプリ登録情報・一時番号の検証情報',lesson:'番号を確認することで誤承認を抑制するが、フィッシング耐性は保証されない。'}
+});
+// Keep order in the selector and comparison table consistent.
+const ORDER=['pw','totp','sms','push','pk'];
+const ATTACKS={replay:'認証情報の漏洩',phish:'フィッシング攻撃（AiTM型）',db:'認証情報DBの漏洩',sim:'SMS受信先の乗っ取り',fatigue:'MFA疲労攻撃（誤承認）'};
+const ACOND=Object.freeze({pw:'yes',secret:'yes',approve:'yes'});
+const ATTACK_LESSONS={leak:'ID・PWだけでは追加認証を完了できない。',phish:'AiTM（Adversary-in-the-Middle）は中間者攻撃の手法。偽サイトを介して正規サイトとの認証処理がリアルタイムで中継される。従来型MFAでは有効な入力・承認が悪用され得るが、パスキーは正規RPに紐づくため、この偽サイトでは正規RP用の署名を生成できない。',db:'サーバー側の保存情報が漏洩した場合の耐性の違い。',replay:'過去に使用した認証情報の漏洩では、PWは再利用できるが、使用済みコード・過去の応答は新しい認証に使えない。長期秘密の漏洩や有効な応答の中継とは別。',sim:'SMSの受信先が乗っ取られると、SMSによる所持の確認が破られ得る。',fatigue:'単純なプッシュ承認では、本人が開始していない要求を誤って承認すると不正認証が成立し得る。番号照合の効果はこの比較の対象外。'};
+function attackCondition(m,a){return ({leak:'有効なID・PWを取得済み。追加認証情報なし。本人は不審な要求を承認しない。',phish:'本人は偽サイトを正規と信じて操作。認証処理はリアルタイムに中継される想定。代替認証なし。'+(m==='pk'?'異なるドメインで正規RP用のパスキーを利用しようとする。':m==='pw'?'有効なID・PWを入力する。':m==='push'?'本人が今回の要求を承認する。':'本人が今回の有効なコードを入力する。'),db:'認証DBの読み取り漏洩のみ。'+(m==='pk'?'公開鍵・Credential ID等を取得、秘密鍵なし。':'漏洩したハッシュから有効なPWを取得済み。'+(m==='totp'?'共有秘密も利用可能。':m==='sms'?'SMS受信能力なし。':['push','match'].includes(m)?'登録情報に認証用秘密なし。本人の誤承認なし。':'')),replay:({pw:'過去の認証で使ったID・PWが漏洩。PWは変更されていない。',totp:'ID・PWと使用済みOTPが漏洩。PWは有効。共有秘密と新しいOTPは未取得。',sms:'ID・PWと使用済みSMSコードが漏洩。PWは有効。新しいSMSは取得できない。',push:'ID・PWと過去の承認応答が漏洩。PWは有効。本人は新しい要求を承認しない。',pk:'過去の署名応答・識別情報が漏洩。秘密鍵なし。今回のチャレンジに対する署名は未取得。'}[m]||'過去の認証情報のみ漏洩。'),sim:'ID・PW取得済み。登録番号のSMS受信先が攻撃者の端末に移動。追加制御なし。',fatigue:'ID・PW取得済み。本人は認証を開始していないが、繰り返し届く要求を誤って承認する想定。'})[a];}
+function attackInputs(){const a=STATE.scenario,m=STATE.method;const c=$('attackInputs');c.hidden=!['normal','attack'].includes(STATE.mode);if(c.hidden)return;if(STATE.mode==='normal'){c.innerHTML='<div class="attack-summary sub">前提：'+(STATE.scenario==='register'?'認証サーバーで本人確認済み。正常なTLS通信。':'PCログイン済み。業務サービスは未ログイン。認証情報は登録済み。OIDC・正常なTLS通信。')+'</div>';return;}c.innerHTML=`<div class="attack-summary sub">前提：${esc(attackCondition(m,a))}</div>`;}
+
+let refView=false, matrixView=false;
+const STATE={mode:'normal',method:'pw',scenario:'login',step:0,timer:null};
+const S=(title,desc,route=null,active=[],status='進行中',tone='',states={},meta={})=>({title,desc,route,active,status,tone,states,...meta});
+const G=(id,label='正常系ではこの通信が発生',kind='ghost')=>({id,label,kind});
+const R=(id,label,kind='normal')=>({id,label,kind});
+function normalCore(m,scenario){
+ if(scenario==='register')return [S('登録を開始','本人確認済みのユーザーが認証サーバーでパスキー登録を開始します。初期の本人確認方法は本モデルの対象外です。',R('bs','登録要求'),['browser','server']),S('登録用チャレンジ','サーバーから登録用のチャレンジ、RP情報、UV要求等を受け取ります。',R('sb','登録オプション'),['server','browser']),S('鍵ペアを生成','スマートフォンの認証器がローカル本人確認を行い、対象RP用の鍵ペアを生成します。',R('ba','登録・UV'),['browser','auth'],'秘密鍵を生成','',{auth:'鍵ペア生成済み'}),S('公開鍵情報を受け取る','認証器は公開鍵とCredential ID等を含む登録結果をブラウザーに返します。秘密鍵は認証器側に保持します。',R('ab','公開鍵など'),['auth','browser'],'登録結果を取得','',{auth:'秘密鍵を保持',browser:'公開鍵などを取得'}),S('公開鍵情報を送信','ブラウザーがCredential IDと公開鍵を含む登録レスポンスを送ります。秘密鍵は認証サーバーへ送信しません。',R('bs','公開鍵などを送信'),['browser','server'],'登録情報を検証','',{auth:'秘密鍵を保持',server:'公開鍵を受信'}),S('登録完了','サーバーはチャレンジ、Origin、RP ID等を確認し、公開鍵などをアカウントに紐づけます。',null,['server'],'登録完了','ok',{auth:'秘密鍵を保持',server:'公開鍵・IDを保存'})];
+ const start=[
+ S('業務サービスへアクセス','PCへのログインは完了済み。ブラウザーから未ログインの業務サービスにアクセスします。',R('bp','サービスアクセス'),['browser','app'],'サービス未ログイン','',{app:'未ログイン'}),
+ S('認証先へリダイレクト指示','業務サービスは認証サーバーへの移動をブラウザーに指示します。',R('pb','リダイレクト指示'),['app','browser'],'認証先を通知','',{app:'未ログイン'}),
+ S('認証サーバーへアクセス','ブラウザーは認証サーバーへ移動します。認証サーバーが認証画面や認証要求を返します。',R('bs','認証サーバーへアクセス'),['browser','server'],'認証を開始','',{browser:'認証画面',app:'未ログイン'})];
+ const finish=[
+ S('認証成功・サービスへ戻る指示','認証サーバーは本人確認に成功し、認可コードを含むリダイレクトを返します。業務サービスはまだ未ログインです。',R('sb','サービスへ戻る指示'),['server','browser'],'認証成功','ok',{server:'認証成功',app:'未ログイン'}),
+ S('業務サービスへ戻る','ブラウザーが業務サービスに戻り、認可コードを届けます。',R('bp','認証後の復帰'),['browser','app'],'サービスへ復帰','',{app:'認証結果の確認待ち'}),
+ S('認証結果を確認','業務サービスは認証サーバーに認可コードを送り、IDトークン等を受け取り、IDトークンを検証します。図はこの往復をまとめて表します。',R('ps','認証結果の確認'),['app','server'],'認証結果の確認成功','',{app:'認証結果を確認済み',server:'認証成功'}),
+ S('サービスにログイン','業務サービスが自サービス用のセッションを確立し、ブラウザーへセッションCookieを返します。',R('pb','サービス用セッション','success'),['app','browser'],'サービスへのログイン成功','ok',{browser:'サービス用Cookie',app:'ログイン済み'}),
+ S('サービス利用','ブラウザーはサービス用セッションでアクセスします。アクセスできる機能は別途認可で決まります。',R('bp','セッションでアクセス','success'),['browser','app'],'正常な利用','ok',{browser:'サービス用Cookie',app:'認証済みアクセス'})];
+ const password=S('パスワード認証','ユーザーは認証サーバーの画面でID・パスワードを入力します。認証サーバーは受け取ったパスワードを保存済みハッシュを用いて検証します。'+(m!=='pw'?'さらに追加認証が必要です。':''),R('bs','ID・パスワード'),['browser','server'],m!=='pw'?'追加認証が必要':'認証成功','',{server:m!=='pw'?'第1要素 OK':'パスワード一致',app:'未ログイン'});
+ if(m==='pw')return [...start,password,...finish];
+ if(m==='totp')return [...start,password,
+ S('追加認証を要求','認証サーバーがOTPの入力を求めます。パスワードだけではログインできません。',R('sb','OTP入力要求'),['server','browser'],'第2要素を要求','',{server:'第1要素 OK',browser:'OTP入力画面',app:'未ログイン'}),
+ S('OTPを取得・入力','スマートフォンのTOTP生成アプリで生成されたOTPをユーザーがブラウザーに入力します。この矢印は通信ではなく手入力を表します。',R('ab','OTP（手入力）'),['auth','browser'],'OTPを入力','',{auth:'OTPを生成',browser:'入力OTP',server:'第1要素 OK'}),
+ S('OTPを検証','認証サーバーが共有秘密と時刻を用いてOTPの有効性を検証します。',R('bs','OTP'),['browser','server'],'認証成功','',{server:'第1・第2要素 OK',app:'未ログイン'}),...finish];
+ if(m==='sms')return [...start,password,
+ S('SMSでコードを送信','認証サーバーが登録済み電話番号宛てに一時コードを送信します。通信事業者やSMS配信基盤は省略しています。',R('sh','SMSで一時コード'),['server','auth'],'SMSを送信','',{server:'第1要素 OK',auth:'SMSを受信',app:'未ログイン'}),
+ S('SMSコードを入力','受信したコードをユーザーがブラウザーに手入力します。',R('ab','SMSコード（手入力）'),['auth','browser'],'コードを入力','',{browser:'入力コード',auth:'SMSコード'}),
+ S('SMSコードを検証','認証サーバーは入力されたコードが今回の認証に対して有効か検証します。',R('bs','SMSコード'),['browser','server'],'認証成功','',{server:'第1・第2要素 OK',app:'未ログイン'}),...finish];
+ if(m==='push'||m==='match')return [...start,password,
+ ...(m==='match'?[S('照合用の番号を表示','認証サーバーが今回の認証に対応する番号をブラウザーに表示します。',R('sb','照合番号'),['server','browser'],'番号を表示','',{browser:'照合番号を表示',server:'第1要素 OK'})]:[]),
+ S('プッシュ認証を要求','認証サーバーが登録済み認証アプリに認証要求を通知します。通知基盤などは省略します。',R('sh','認証要求を通知'),['server','auth'],'追加認証を要求','',{auth:'認証要求を受信',server:'第1要素 OK'}),
+ ...(m==='match'?[S('番号をアプリに入力','ブラウザーに表示された番号をユーザーがアプリに入力します。矢印は手入力を表します。',R('ba','照合番号（手入力）'),['browser','auth'],'番号を入力','',{auth:'番号を入力',browser:'照合番号を表示'})]:[S('アプリで承認','ユーザーが登録済みアプリの認証要求を確認して承認します。',null,['auth'],'承認操作','',{auth:'承認済み'})]),
+ S('認証応答を検証',m==='match'?'アプリからの認証応答と照合番号を認証サーバーが確認します。':'登録済みアプリからの承認応答を認証サーバーが確認します。',R('hs',m==='match'?'番号を含む認証応答':'承認応答'),['auth','server'],'認証成功','',{server:'第1・第2要素 OK',app:'未ログイン'}),...finish];
+ return [...start,
+ S('パスキー認証を要求','認証サーバーがチャレンジ（今回の認証用データ）などをブラウザーに返します。',R('sb','チャレンジ'),['server','browser'],'パスキー認証を開始','',{browser:'チャレンジ受信',app:'未ログイン'}),
+ S('本人確認・署名','ブラウザーがスマートフォンの認証器に認証を要求します。認証器はPINや生体認証などで本人確認し、正規RP用の秘密鍵で署名します。',R('ba','署名要求'),['browser','auth'],'秘密鍵で署名','',{auth:'秘密鍵で署名',app:'未ログイン'}),
+ S('署名を受け取る','ブラウザーが署名などの認証結果を受け取ります。秘密鍵や生体情報は送信されません。',R('ab','署名など'),['auth','browser'],'署名を取得','',{browser:'署名を取得',auth:'秘密鍵を保持'}),
+ S('公開鍵で署名を検証','認証サーバーが登録済み公開鍵で署名を検証し、チャレンジや接続先、本人確認の結果も確認します。',R('bs','署名応答'),['browser','server'],'認証成功','',{server:'署名・本人確認 OK',app:'未ログイン'}),...finish];
+}
+
+// Shared user-facing screens: normal and abnormal flows use the same titles and labels.
+function waitStep(m){const sms=m==='sms', label=sms?'SMSコード入力要求':'承認待ち画面';return S(sms?'SMSコード入力待ち':'ブラウザーに承認待ち画面を表示',sms?'認証を開始したブラウザーでSMSコードの入力を待ちます。':'認証を開始したブラウザーは承認待ちです。承認操作は登録済みスマートフォンで行います。',R('sb',label),['server','browser'],'追加認証待ち','',{browser:sms?'SMSコード入力画面':'承認待ち画面',server:'追加認証待ち',app:'未ログイン',...(sms?{auth:'SMSコード受信'}:{})});}
+function normal(m,scenario){const list=normalCore(m,scenario);if(scenario!=='login')return list;if(['sms','push'].includes(m)){const i=list.findIndex(t=>t.title===(m==='sms'?'SMSでコードを送信':'プッシュ認証を要求'));list.splice(m==='sms'?i+1:i,0,waitStep(m));}let app='未ログイン';return list.map(t=>{const states={...t.states};if(states.app)app=states.app;else states.app=app;if(m==='push'&&['プッシュ認証を要求','アプリで承認','認証応答を検証'].includes(t.title))states.browser='承認待ち画面';if(t.title==='認証応答を検証'&&m==='push')states.auth='承認済み';if(m==='sms'&&t.title==='SMSコードを検証')states.auth='SMSコード受信';return {...t,states};});}
+
+const NEW_CASES={
+ db:{condition:'DBの読み取り漏洩のみ。認証サーバーの改ざんなし。ハッシュからのPW復元、TOTP共有秘密の取得は条件付き。',lesson:'検証情報の漏洩と認証に必要な秘密の漏洩は異なる。',source:'server',route:'sa',data:{
+ pw:['PWハッシュ','漏洩したハッシュ自体では通常のパスワード認証はできません。元のパスワードが推測できた場合は不正認証が成立し得ます。','conditional','PW復元が条件'],
+ totp:['ハッシュ・共有秘密','元のパスワードを推測でき、保護されたTOTP共有秘密も利用可能な形で漏洩した場合は、両要素が失われます。','conditional','PW・共有秘密が条件'],
+ sms:['ハッシュ・登録番号','パスワードを復元できても登録電話番号の情報だけではSMSを受信できません。','blocked','SMS受信能力が不足'],
+ push:['ハッシュ・登録情報','登録情報が端末の認証用秘密を含まないモデルです。パスワードを復元してもアプリの正当な応答が必要です。','blocked','アプリの応答が不足'],
+ match:['ハッシュ・登録情報','登録情報のみでは登録アプリを操作できません。パスワードを復元しても正当な番号照合応答が必要です。','blocked','アプリの応答が不足'],
+ pk:['公開鍵','公開鍵のみでは秘密鍵による署名を作成できません。サーバーの改ざんや登録変更は別の脅威です。','blocked','秘密鍵による署名が不足']}},
+ replay:{condition:'過去に成功した認証の応答・入力値のみが漏洩。新しい認証要求。Cookie・長期秘密・端末操作権は取得していない。',lesson:'過去の認証情報の再利用と、有効な情報のリアルタイム中継は別のリスク。',source:'browser',route:'bx',data:{
+ pw:['使用済みPW','パスワードは通常、認証成功後も有効です。変更されていなければ再利用可能です。','bad','PWは再利用可能'],
+ totp:['PW・使用済みOTP','使用済みOTPの再受理を防ぐ検証を想定します。パスワードが有効でもOTPは再利用できません。','blocked','使用済みOTPを拒否'],
+ sms:['PW・使用済みコード','使用済みコードを新しい要求には受理しない実装を想定します。','blocked','使用済みコードを拒否'],
+ push:['PW・過去の承認応答','承認応答が個々の要求に結び付く実装を想定し、過去の応答は新しい要求に使えません。','blocked','新規要求と不一致'],
+ match:['PW・過去の番号応答','番号と認証応答が個々の要求に結び付く実装を想定します。','blocked','新規要求と不一致'],
+ pk:['過去の署名','新しいチャレンジと過去の署名は対応しません。署名の検証時にチャレンジも確認します。','blocked','チャレンジ不一致']}}
+};
+
+const ACTOR_ROUTE={bp:'ap',pb:'pa',bs:'as',sb:'sa',ba:'ah',ab:'ha',ps:'ps',sh:'sh',hs:'hs'};
+function attackRaw(m,a){
+ if(!applicable(m,a))return [S('対象外の攻撃','この認証方式では対象となる認証機能がありません。',null,[],'対象外','',{app:'未ログイン'})];
+ const n=normalCore(m,'login'), tail=n.slice(-5), auth=n.slice(3,-5), out=[];
+ const add=(...args)=>out.push(S(...args));
+ const mapRoute=r=>r?R(ACTOR_ROUTE[r.id]||r.id,r.label,['ps','sh','hs'].includes(r.id)?'normal':'attack'):null;
+ const copy=(t,desc,patch={},opts={})=>{const states={};for(const [id,v] of Object.entries(t.states))states[id==='browser'?'attacker':id]=v;out.push({...t,desc:desc||t.desc,route:mapRoute(t.route),active:t.active.map(id=>id==='browser'?'attacker':id),states:{...states,...patch},tone:'warn',normalTitle:t.title,...opts});};
+ const browserWait=(label='承認待ち画面')=>{const t=waitStep('push');copy(t,'認証を開始した攻撃者側のブラウザーに承認待ち画面が表示されます。本人の登録スマートフォンで承認します。');if(a==='phish')add('偽サイトに承認待ち画面を表示','本人のブラウザーにも偽サイト経由で承認待ち画面が表示されます。',R('xb','承認待ち画面','attack'),['attacker','browser'],'追加認証待ち','warn',{browser:'承認待ち画面',app:'未ログイン'});};
+ const smsWait=()=>copy(waitStep('sms'),'認証を開始した攻撃者側のブラウザーはSMSコードの入力待ちです。',{auth:a==='sim'?'SMS受信不可':'SMSコード受信'});
+ const notify=()=>{if(m==='push')browserWait();copy(auth.find(t=>t.title==='プッシュ認証を要求'),'登録済みのスマートフォンの認証アプリに認証要求が届きます。認証開始側のブラウザーは承認待ちです。',{auth:'認証要求を受信'});};
+ const begin=()=>{copy(n[0],'攻撃者側のブラウザーから、未ログインの業務サービスにアクセスします。');copy(n[1],'業務サービスは攻撃者側のブラウザーに認証サーバーへの移動を指示します。');copy(n[2],'攻撃者側のブラウザーが認証サーバーへ移動し、認証を開始します。');};
+ const pw=()=>copy(auth[0],'攻撃者が取得した有効なID・パスワードが提示され、認証サーバーで検証されます。'+(m!=='pw'?' この段階では追加認証が必要です。':''),{attacker:'ID・PWを提示'});
+ const finish=()=>{copy(tail[0],'認証が受理された想定です。認証サーバーはサービスへ戻る指示を攻撃者側へ返します。');copy(tail[1],'攻撃者側のブラウザーが業務サービスへ戻ります。');copy(tail[2],'業務サービスは認証サーバーとの間で認証結果を確認します。ここは01と同じ処理です。');copy(tail[3],'業務サービスが認証結果を受け入れ、攻撃者側で利用可能なサービス用セッションを発行します。',{attacker:'サービス用Cookie',app:'ログイン済み（攻撃者）'},{tone:'bad',status:'サービスへのログイン成功（攻撃者）'});copy(tail[4],'攻撃者が発行済みのサービス用セッションを使ってアクセスします。',{attacker:'サービス用Cookie',app:'不正アクセス'},{tone:'bad',status:'不正アクセス成立（想定条件下）'});};
+ const missing=(t,desc,reason,patch={},conditional=false)=>{const r=mapRoute(t.route),sender={as:'attacker',sa:'server',ah:'attacker',ha:'auth',hs:'auth',sh:'server',ap:'attacker',pa:'app'}[r?.id]||'attacker';out.push(S(patch.failureTitle||'必要な認証情報を送信できない',desc+' このSTEPでは有効な認証情報を送信しないモデルです。',null,[sender],conditional?'条件依存：'+reason:'阻止：'+reason,conditional?'warn':'ok',{app:'未ログイン',attacker:'認証未完了',...(r?.id==='as'||r?.id==='hs'?{server:'認証情報未受信'}:{}),...patch},{shadowRoute:r?G(r.id,(patch.failureLabel||r.label+(conditional?'（条件未確定）':'（未送信）')),conditional?'pending':'ghost'):null,noTransmission:true,normalTitle:t.title}));};
+ const noSession=(reason)=>{out.push(S('サービス用セッションは未発行','本人確認が完了していないため、サービスへの復帰・認証結果の確認・セッション発行には進みません。',null,['attacker'],'阻止：'+reason,'ok',{app:'未ログイン・未発行',attacker:'Cookieなし',server:'認証未完了'},{shadowRoute:G('pa','サービス用セッション（未発行）'),noTransmission:true,normalTitle:'サービスにログイン'}));};
+
+ const na=desc=>[S('対象外の攻撃',desc,null,[],'対象外','',{app:'未ログイン'})];
+ const leak=()=>add('ID・パスワード取得済み','攻撃者が対象アカウントのIDと有効なパスワードをすでに取得した状態から開始します。取得経路は対象外のため、矢印は描きません。',null,['attacker'],'ID・PW取得済み','warn',{attacker:'ID・PW取得済み',app:'未ログイン'});
+ const secondMissing=(reason,detail,conditional=false)=>{
+  if(m==='totp'){copy(auth[1],'認証サーバーは攻撃者側にOTP入力を要求します。');missing(auth.at(-1),detail,reason,{auth:'正規ユーザー管理下'},conditional);}
+  else if(m==='sms'){copy(auth[1],'認証サーバーは登録済みの電話番号にSMSを送信します。本人のスマートフォンに届きます。');smsWait();missing(auth.at(-1),detail,reason,{auth:'本人側でSMSを受信',attacker:'SMSコード取得不可',server:'第2要素未完了',failureTitle:'SMSコードを取得できない',failureLabel:'SMSコード（未送信）'},conditional);}
+  else if(m==='push'||m==='match'){if(m==='match')copy(auth[1],'攻撃者側に照合番号が表示されます。');notify();if(m==='match')missing(auth.at(-1),'本人のPCには照合番号が表示されず、本人は番号を知りません。'+detail,reason,{auth:'照合番号不明'},conditional);else missing(auth.at(-1),detail+' 本人は承認せず、応答を送らない想定です。',reason,{auth:'本人が承認しない',server:'第2要素未完了',failureTitle:'本人の承認応答がない',failureLabel:'承認応答（未送信）'},conditional);}
+  else if(m==='pk'){copy(auth[0],'認証サーバーが新しいチャレンジを返します。');missing(auth.at(-1),detail,reason,{auth:'秘密鍵は本人側に保持',attacker:'秘密鍵なし・署名不可',server:'署名応答未受信',failureTitle:'秘密鍵がないため署名できない',failureLabel:'署名応答（未送信）'},conditional);}
+  else missing(auth[0],detail,reason,{},conditional);
+ };
+ if(a==='phish'){
+  add('偽サイトへ誘導','正規の認証サーバーとは異なるドメインの偽サイトに誘導された想定です。',R('bx','偽サイトにアクセス','attack'),['browser','attacker'],'誘導された','warn',{browser:'偽サイトを表示',attacker:'偽サイト',app:'未ログイン'});
+  begin();
+  add('偽サイトに認証画面を表示','正規認証側の画面に対応する表示が偽サイトに現れる概念モデルです。本人は偽サイトを表示しています。',R('xb','認証画面の表示','attack'),['attacker','browser'],'偽サイトに認証画面','warn',{browser:'偽サイトの認証画面',app:'未ログイン'});
+  if(m==='pk'){copy(auth[0],'正規認証側で発行されたチャレンジが偽サイト側の環境に届く概念モデルです。');add('偽サイトでパスキー認証を試みる','偽サイト側の認証要求を本人のブラウザーが受け取る概念モデルです。正規RPのパスキーは異なるドメインから利用できません。',R('xb','パスキー認証要求','attack'),['attacker','browser'],'偽サイトからの要求','warn',{browser:'偽サイトを表示'});add('RP IDの検証・阻止','ブラウザーの接続先は fake.example.net、要求されたRP IDは login.example.com です。関連オリジンの許可等がない前提ではブラウザーが拒否し、スマートフォンへ署名要求を送信しません。UV失敗ではありません。',null,['browser'],'阻止：RP IDの制約','ok',{browser:'RP IDの検証で拒否',auth:'署名要求なし',app:'未ログイン'},{shadowRoute:G('ba','署名要求（未送信）'),noTransmission:true,normalTitle:auth[1].title});noSession('RP ID・Originの制約');return out;}
+  add('ID・パスワードの取得','正規側で認証が開始された後、偽サイトに表示された認証画面に本人がID・パスワードを入力した時点です。両方の情報が攻撃者側に渡った想定です。',R('bx','ID・パスワード','attack'),['browser','attacker'],'ID・PW取得','warn',{browser:'偽サイトにID・PW入力',attacker:'ID・PW取得'});pw();
+  if(m!=='pw'){
+   if(m==='totp'||m==='sms'){if(m==='totp')copy(auth[1],'正規認証側がOTP入力を要求する状態です。');else{copy(auth[1],'登録済み電話番号へ一時コードが送信されます。');smsWait();}add('偽サイトにコード入力画面を表示','本人のブラウザーに偽サイトのコード入力画面が表示されます。',R('xb',m==='totp'?'OTP入力画面':'SMSコード入力画面','attack'),['attacker','browser'],'コード入力画面','warn',{browser:'偽サイトのコード入力画面'});add(auth[2].title,'正規ユーザーがスマートフォンの一時コードを偽サイトの画面に入力した条件です。',R('ab',auth[2].route.label),['auth','browser'],'コードを入力','warn',{auth:'一時コード',browser:'入力コード'});add('追加認証情報が漏洩','正規ユーザーが偽サイトを正規と信じ、今回の認証に利用可能な一時コードが攻撃者側に渡った条件です。',R('bx',m==='totp'?'入力OTP':'入力SMSコード','attack'),['browser','attacker'],'有効なOTPを取得（仮定）','warn',{attacker:'有効なOTP'});}
+   else{if(m==='match'){copy(auth[1],'今回の認証に対応する照合番号が発行された状態です。');add('偽サイトに照合番号を表示','偽サイトに今回の照合番号が表示されます。本人は偽サイトを正規と信じ、表示された番号を使用する想定です。',R('xb','照合番号の表示','attack'),['attacker','browser'],'照合番号を確認（仮定）','warn',{browser:'偽サイト・照合番号',attacker:'照合番号'});}notify();add(m==='match'?'番号をアプリに入力':'アプリで承認','正規ユーザーが偽サイトを正規と信じ、今回の追加認証を完了した条件を想定します。',m==='match'?R('ba',auth[3].route.label):null,['auth',...(m==='match'?['browser']:[])],'追加認証操作（仮定）','warn',{auth:'認証操作完了'});}
+   copy(auth.at(-1),'今回の認証に有効な追加認証応答が検証されたという条件です。');
+  }finish();return out;
+ }
+ if(a==='sim'||a==='fatigue'){
+  if(a==='sim'&&m!=='sms'||a==='fatigue'&&!['push','match'].includes(m))return na(a==='sim'?'この方式はSMS受信を第2要素に使用しません。':'この方式はプッシュ承認を使用しません。');
+  leak();begin();pw();
+  if(a==='sim'){
+   add('電話番号のSMS受信先が変わる','本人の端末を奪うのではなく、登録電話番号のSMS受信先が攻撃者の受信端末へ移った条件です。通信事業者側の処理は省略します。',null,['attphone','auth'],'SMS受信先が変化','warn',{auth:'SMS受信不可',attphone:'登録番号を受信可能',attacker:'ID・PW取得済み'});
+   add(auth[1].title,'SMSは本来登録スマートフォンに届きますが、この条件では攻撃者側に届きます。',R('sd',auth[1].route.label,'attack'),['server','attphone'],'SMSを受信（攻撃者端末）','warn',{auth:'SMS受信不可',attphone:'SMSコード受信',attacker:'コード入力待ち'},{shadowRoute:G('sh','SMSで一時コード（未到達）')});smsWait();add(auth[2].title,'攻撃者が自分の受信端末で受信したコードを自身のブラウザーに手入力します。',R('da','SMSコード（手入力）','attack'),['attphone','attacker'],'コードを入力','warn',{attacker:'入力SMSコード',attphone:'SMSコード受信',auth:'SMS受信不可'});copy(auth.at(-1),'今回の認証に有効なSMSコードが検証された想定です。');finish();return out;
+  }
+  if(m==='match')copy(auth[1],'照合番号は攻撃者側のブラウザーに表示され、正規ユーザーには分かりません。');
+  if(m==='push')browserWait();copy(auth.find(t=>t.title==='プッシュ認証を要求'),'本人が開始していない承認要求が登録アプリに繰り返し届く想定です。本人のPCでは認証を開始していません。',{auth:'不審な通知が繰り返し到達',browser:'認証を開始していない'});
+  if(m==='match'){missing(auth.at(-1),'照合番号は攻撃者側のブラウザーにだけ表示されています。本人は番号を知らず、スマートフォンに入力できません。','番号不明',{auth:'番号不明',browser:'認証を開始していない'});noSession('番号不明');}else{copy(auth[2],'正規ユーザーが誤って承認した場合を想定します。',{auth:'本人が誤承認',browser:'本人は認証操作なし'});copy(auth.at(-1),'誤承認による有効な応答が検証された想定です。');finish();}return out;
+ }
+ if(a==='db'){
+ const [originalData,detail]=NEW_CASES.db.data[m];const data=m==='pk'?'ID・公開鍵・Credential ID等':'ID・'+(m==='totp'&&ACOND.secret==='no'?'PWハッシュ':originalData);const displayData=m==='pk'?'ID・公開鍵等':m==='pw'||m==='totp'&&ACOND.secret==='no'?'ID・PWハッシュ':m==='totp'?'ID・ハッシュ・共有秘密':m==='sms'?'ID・ハッシュ・登録番号':'ID・ハッシュ・登録情報';
+ add('認証情報DBの読み取り漏洩','対象アカウントのIDと対応する認証サーバーの保存情報（'+data+'）が漏洩した想定です。IDはアカウントの識別情報で、認証要素ではありません。改ざんはありません。',R('sa',data,'attack'),['server','attacker'],'ID・保存情報が漏洩','warn',{server:'ID・認証情報DB漏洩',attacker:displayData,app:'未ログイン'},{sourceRisk:'server',affected:[data]});
+ if(m!=='pk')add('認証に使える情報を取得済み','このシナリオでは、漏洩したPWハッシュから有効なパスワードを取得できたものとします。'+(m==='totp'?'TOTP共有秘密も利用可能です。':'')+' ハッシュ解析の過程は対象外です。',null,['attacker'],'ID・PW取得済み','warn',{attacker:m==='totp'?'ID・PW・共有秘密':'ID・PW取得済み',app:'未ログイン'});
+ begin();
+ if(m==='pk'){secondMissing('秘密鍵による署名が不足','公開鍵だけでは正規RP用の新しい署名を生成できません。');noSession('秘密鍵による署名が不足');return out;}
+
+ pw();if(m==='pw'){finish();return out;}
+ if(m==='totp'&&ACOND.secret==='yes'){copy(auth[1],'新しい認証に対するOTP入力要求です。');add('共有秘密からOTPを生成','攻撃者は漏洩した共有秘密を使い、現在時刻に対応するOTPを自身の環境で生成します。本人のスマートフォンから窃取したOTPではありません。',null,['attacker'],'攻撃者がOTPを生成','warn',{attacker:'共有秘密からOTP生成',auth:'今回は操作なし'},{normalTitle:auth[2].title});copy(auth.at(-1),'攻撃者が生成した有効なOTPを認証サーバーが検証します。',{attacker:'生成したOTPを提示'},{route:R('as','OTP（攻撃者が生成）','attack')});finish();return out;}
+ const why={totp:'共有秘密が保護されている',sms:'SMS受信能力なし',push:'登録アプリの応答なし',match:'登録アプリの応答なし'}[m];secondMissing(why,'取得した検証・登録情報だけでは必要な追加認証を完了できません。');noSession(why);return out;
+ }
+ if(a==='replay'){
+ const [data,detail,,reason]=NEW_CASES.replay.data[m];
+ const captured={pw:'ID・PW',totp:'ID・PW・使用済みOTP',sms:'ID・PW・使用済みSMSコード',push:'ID・PW・過去のアプリ応答',match:'ID・PW・過去の番号照合応答',pk:'Credential ID・過去の署名応答'}[m];
+ add('認証情報を取得済み','過去の認証で使われた「'+captured+'」が漏洩した前提です。取得経路は特定しないため矢印は描きません。長期秘密や新しい有効な応答は取得していません。',null,['attacker'],'過去の認証情報を取得済み','warn',{attacker:captured,app:'未ログイン'},{affected:[captured]});begin();
+ if(m!=='pk'){pw();if(m==='pw'){finish();return out;}if(m==='totp')copy(auth[1],'新しい認証要求でOTP入力を求めます。');else if(m==='sms'){copy(auth[1],'新しいSMSコードは本人の登録スマートフォンに届きます。攻撃者が保持するコードは過去のものです。');smsWait();}else{notify();missing(auth.at(-1),'過去の承認応答は今回の要求に紐づかず、本人は新しい承認を行いません。','今回の承認応答なし',{auth:'本人が承認しない',server:'第2要素未完了',failureTitle:'本人の承認応答がない',failureLabel:'承認応答（未送信）'});noSession('今回の承認応答なし');return out;}}
+ else copy(auth[0],'新しいチャレンジが発行されます。');
+ const t=auth.at(-1);const pastLabel={totp:'OTP（使用済み）',sms:'SMSコード（使用済み）',push:'承認応答（過去）',match:'番号照合応答（過去）',pk:'署名応答（過去）'}[m];add(t.title,detail+(['push','match'].includes(m)?' 過去のアプリ応答を認証側に再提示する概念モデルであり、実際の送信経路・受付インターフェースは製品依存です。新しい承認は行われません。':''),R('as',pastLabel,'attack'),['attacker','server'],'拒否：'+reason,'ok',{server:'拒否：'+reason,attacker:pastLabel,app:'未ログイン'});noSession(reason);return out;
+ }
+ return na('対象外');
+}
+
+function attack(m,a){const list=attackRaw(m,a);let actor='',app='未ログイン',phone='',victim='',started=false;return list.map(s=>{const st={...s.states};if(a==='phish'){if(st.browser)victim=st.browser;else if(victim)st.browser=victim;}if(s.active.includes('attacker')||st.attacker)started=true;if(st.attacker)actor=st.attacker;else if(started)st.attacker=actor||'攻撃進行中';if(st.app)app=st.app;else st.app=app;if(a!=='phish'&&!st.browser)st.browser='本人は認証操作なし';if(m==='push'&&s.title==='認証応答を検証'&&s.route?.id==='hs')st.auth=a==='fatigue'?'本人が誤承認':'承認済み';if(a==='sim'){if(st.attphone)phone=st.attphone;else if(phone)st.attphone=phone;if(phone&&!st.auth)st.auth='SMS受信不可';}return {...s,status:s.status==='認証成功'?'認証成功（攻撃者）':s.status,states:{...st,...(st.server==='認証成功'?{server:'認証成功（攻撃者）'}:{})},actorStarted:started};});}
+
+const NODES={browser:{x:300,y:45,w:220,h:112,title:'PC・ブラウザー',base:'本人操作・PCログイン済み',type:'pc'},app:{x:780,y:45,w:200,h:112,title:'業務サービス',base:'認証後に利用可能',type:'app'},attacker:{x:20,y:220,w:180,h:112,title:'攻撃者・偽サイト',base:'攻撃側の環境',type:'attack'},auth:{x:300,y:285,w:220,h:112,title:'スマートフォン',base:'認証機能',type:'device'},server:{x:780,y:220,w:200,h:112,title:'認証サーバー',base:'認証情報を検証',type:'server'}};
+// Each STEP shows one straight route. The authenticator sits below the attack-to-server corridor.
+const SIM_PHONE={x:20,y:45,w:180,h:112,title:'攻撃者の受信端末',base:'SMS受信端末',type:'device'};
+const ROUTES={sd:['M780 280 L200 155',650,237],da:['M110 157 V220',124,185,'start'],ah:['M200 305 L300 340',250,277],ha:['M300 340 L200 305',250,277],sh:['M780 310 L520 335',650,307],hs:['M520 335 L780 310',650,307],pa:['M780 150 L200 220',650,155],bs:['M520 145 L780 235',650,175],sb:['M780 235 L520 145',650,175],ba:['M410 157 V285',425,227,'start'],ab:['M410 285 V157',425,227,'start'],bx:['M300 145 L200 230',170,190],xb:['M200 230 L300 145',170,190],as:['M200 265 H780',650,251],sa:['M780 265 H200',650,251],bp:['M520 101 H780',650,87],pb:['M780 101 H520',650,87],ps:['M880 157 V220',868,192,'end'],sp:['M880 220 V157',868,192,'end'],ap:['M200 220 L780 150',650,155]};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function icon(type,x,y){const paths={person:'<circle cx="12" cy="7" r="4"/><path d="M3 21v-3a9 9 0 0 1 18 0v3"/>',pc:'<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/>',server:'<rect x="2" y="3" width="20" height="7" rx="2"/><rect x="2" y="14" width="20" height="7" rx="2"/><path d="M6 6h1m-1 11h1"/>',app:'<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 8h18m-12 0v13"/>',attack:'<path d="M12 2 2 21h20L12 2Z M12 9v5m0 3v1"/>',device:'<rect x="5" y="2" width="14" height="20" rx="3"/><path d="M10 18h4"/>',key:'<circle cx="8" cy="9" r="5"/><path d="m12 13 8 8m-3-3 3-3m-6 0 3-3"/>'};return `<g transform="translate(${x} ${y})" fill="none" stroke="var(--muted)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${paths[type]}</g>`;}
+// Long-lived credential / registration information. No actual credential values are used.
+const STORAGE={pw:{server:[['secret','PWハッシュ','ソルト付きパスワードハッシュ。平文のパスワードではない。']]},totp:{auth:[['secret','共有秘密','TOTPを生成するための共有秘密。']],server:[['secret','PWハッシュ','ソルト付きパスワードハッシュ。'],['secret','共有秘密','OTPを検証するための共有秘密。保護して保存する。']]},sms:{auth:[['record','登録番号','登録済み電話番号のSMSを受信する端末。']],server:[['secret','PWハッシュ','ソルト付きパスワードハッシュ。'],['record','登録番号','SMS送信先の登録電話番号。']]},push:{auth:[['record','登録アプリ','登録済みアプリの認証用情報。方式・実装に依存する。']],server:[['secret','PWハッシュ','ソルト付きパスワードハッシュ。'],['record','登録情報','認証アプリの紐づけ・検証情報。実装に依存する。']]},match:{auth:[['record','登録アプリ','登録済みアプリの認証用情報。方式・実装に依存する。']],server:[['secret','PWハッシュ','ソルト付きパスワードハッシュ。'],['record','登録情報','認証アプリの紐づけ・検証情報。実装に依存する。']]},pk:{}};
+function compactChips(id,n,items){return items.map(([kind,label,detail],i)=>{const w=id==='attacker'&&label.includes('ID')?Math.min(n.w-45,Math.max(104,label.length*9+12)):70,x=n.x+n.w-10-w-i*(w+4),y=n.y+11;return `<g class="credential-chip compact ${kind}" data-credential="${esc(label)}" data-location="${id}" role="img" aria-label="${esc(detail)}"><title>${esc(detail)}</title><rect x="${x}" y="${y}" width="${w}" height="25" rx="5"/><text x="${x+w/2}" y="${y+17}">${esc(label)}</text></g>`;}).join('');}
+function extraChips(id,n,s){
+ const m=STATE.method, items=[...(STORAGE[m][id]||[])];
+ if(STATE.mode==='normal'&&STATE.scenario==='login'){
+   if(id==='browser'&&s.title==='パスワード認証')items.push(['temporary','入力PW','ユーザーが今回入力したパスワード。端末への永続保存は仮定しない。']);
+   if(id==='browser'&&['OTPを取得・入力','SMSコードを入力','OTPを検証','SMSコードを検証'].includes(s.title))items.push(['temporary','入力OTP','今回入力した一時コード。']);
+   if(id==='auth'&&['OTPを取得・入力','SMSでコードを送信','SMSコードを入力'].includes(s.title))items.push(['temporary','一時コード','今回の認証用の一時コード。']);
+   if(id==='browser'&&s.title==='照合用の番号を表示')items.push(['temporary','照合番号','今回の要求に対応する一時番号。']);
+   if(id==='auth'&&s.title==='番号をアプリに入力')items.push(['temporary','照合番号','今回入力する番号。独立した認証要素ではない。']);
+ }
+ if(id==='attacker'&&STATE.mode==='attack'&&s.states[id]!=='サービス用Cookie'){
+ const a=STATE.scenario;let label='',detail='';const prior=attack(m,a).slice(0,STATE.step+1);
+ if(a==='leak'||a==='sim'||a==='fatigue'){label='取得ID・PW';detail='対象IDと有効なパスワードを取得済み。';}
+ if(a==='db'){label=m==='pk'?'ID・公開鍵等':m==='totp'?(STATE.step>0?'ID・PW・共有秘密':'ID・ハッシュ・秘密'):(STATE.step>0?(m==='sms'?'ID・PW・番号':m==='push'?'ID・PW・登録情報':'取得ID・PW'):(m==='sms'?'ID・ハッシュ・番号':m==='push'?'ID・ハッシュ・登録':'ID・PWハッシュ'));detail=attackCondition(m,a)+(m==='totp'&&ACOND.secret==='yes'?' 共有秘密も取得。':'');}
+ if(a==='replay'){label={pw:'取得ID・PW',totp:'ID・PW・旧OTP',sms:'ID・PW・旧コード',push:'ID・PW・旧応答',match:'ID・PW・旧応答',pk:'過去の署名等'}[m];detail=attackCondition(m,a);}
+ if(a==='phish'&&m!=='pk'&&prior.some(t=>t.title==='ID・パスワードの取得')){label=prior.some(t=>t.title==='追加認証情報が漏洩')?'ID・PW・コード':'取得ID・PW';detail='偽サイトで取得した対象IDと有効なパスワード、追加認証情報（該当する場合）。';}
+ if(label)items.push(['temporary',label,detail]);
+ }
+ if(id==='attphone'&&STATE.mode==='attack'&&STATE.scenario==='sim'&&s.states.attphone)items.push(['record','登録番号','SMSの受信先が変わった条件。']);
+ if((id==='browser'||id==='attacker')&&s.states[id]==='サービス用Cookie')items.push([STATE.mode==='attack'&&id==='attacker'?'stolen':'temporary','Cookie',STATE.mode==='attack'&&id==='attacker'?'認証成立後に攻撃者側へ新規発行された業務サービス用Cookie。':'業務サービスの認証済みセッション情報。']);
+ return compactChips(id,n,items);
+}
+function factorView(m){const pk=m==='pk',multi=m!=='pw';return `<div class="factorline"><span class="factor-badge ${pk?'alt':'on'}">知識${pk?'（PINの場合）':'：パスワード'}</span><span class="factor-badge ${multi?'on':''}">所持${multi?'：スマホ':'：対象外'}</span><span class="factor-badge ${pk?'alt':''}">生体${pk?'（生体UVの場合）':'：想定外'}</span></div><p class="factor-detail">${pk?'UVはPIN等または生体認証。両方が必要という意味ではない。':m==='match'?'番号照合は所持の確認を補強する操作で、独立した第3要素ではない。':m==='sms'?'登録電話番号への到達性を所持の証拠として扱うモデル。':multi?'パスワードと登録済み端末を用いる2要素の概念モデル。':'PCへのログインは認証要素に含めない。'}</p><p class="factor-detail">${esc(METHODS[m].local)} ／ ${esc(METHODS[m].store)}</p>`;}
+// This represents relevant credential locations, not all possible copies of a public key.
+function credentialChips(id,n){
+ if(STATE.method!=='pk')return '';
+ const registering=STATE.mode==='normal'&&STATE.scenario==='register';
+ const step=STATE.step;
+ let items=[];
+ if(id==='auth'&&(!registering||step>=2)){
+   items.push({kind:'private',label:'秘密鍵',detail:'認証器側に保持する秘密鍵。認証サーバーには送信しない。'});
+   if(registering&&step===2)items.push({kind:'public',label:'公開鍵',detail:'鍵ペア生成時の公開鍵。登録結果としてブラウザーを経由して送信する。'});
+ }
+ if(id==='browser'&&registering&&step===3)items.push({kind:'public',label:'公開鍵',pending:true,detail:'認証器から受け取った登録結果に含まれる公開鍵。認証サーバーへ送信する。'});
+ if(id==='server'&&(!registering||step>=4))items.push({kind:'public',label:'公開鍵',pending:registering&&step===4,detail:registering&&step===4?'公開鍵を受信済み。登録情報の検証中。':'登録済み公開鍵。署名の検証に利用する。'});
+ return items.map((item,i)=>{const w=78,x=n.x+n.w-10-w-(item.kind==='private'?w+5:0),y=n.y+11;return `<g class="credential-chip ${item.kind}${item.pending?' pending':''}" data-credential="${item.kind}" data-location="${id}" role="img" aria-label="${esc(item.detail)}"><title>${esc(item.detail)}</title><rect x="${x}" y="${y}" width="${w}" height="25" rx="5"/><g transform="translate(${x+6} ${y+5})" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="5" r="3.6"/><path d="m8 8 7 7m-3-3 3-3m-1 5 2-2"/></g><text x="${x+26}" y="${y+17}">${item.label}</text></g>`;}).join('');
+}
+function sharedNodeClass(id,s,dim,waiting){
+ const attack=STATE.mode==='attack',active=s.active.includes(id);
+ if(attack&&((id==='attacker'&&!waiting)||(id==='attphone'&&s.states.attphone)||s.sourceRisk===id||(id==='app'&&s.states.app==='不正アクセス')))return 'risk';
+ if(attack&&s.title==='RP IDの検証・阻止'&&id==='browser')return 'safe';
+ if(attack&&id==='server'&&active&&s.route&&s.status.startsWith('拒否：'))return 'safe';
+ if(!attack&&active&&((id==='server'&&s.status==='認証成功')||(id==='app'&&s.title==='サービスにログイン')))return 'safe';
+ return active?'active':dim?'dim':'';
+}
+function diagram(s){let html='<svg viewBox="0 0 1000 435" role="img" aria-label="現在の認証フローの構成図"><defs>';for(const [kind,c] of Object.entries({normal:'accent',attack:'bad',block:'ok',success:'ok',ghost:'muted',pending:'warn'}))html+=`<marker id="arrow-${kind}" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto-start-reverse"><path d="M0 0 L7 3.5 L0 7 Z" fill="var(--${c})"/></marker>`;html+='</defs>';
+ if(['normal','attack'].includes(STATE.mode))html+='<rect class="user-boundary" x="286" y="22" width="248" height="389" rx="12"/><text class="user-boundary-label" x="300" y="37">正規ユーザーの環境</text>';
+ for(const [id,n] of Object.entries(STATE.mode==='attack'&&STATE.scenario==='sim'?{...NODES,attphone:SIM_PHONE}:NODES)){if(id==='attacker'&&STATE.mode==='normal')continue;const isActive=s.active.includes(id),waiting=id==='attacker'&&STATE.mode==='attack'&&!s.actorStarted,dim=(id==='auth'&&(STATE.method==='pw'))||waiting,cls=['normal','attack'].includes(STATE.mode)?sharedNodeClass(id,s,dim,waiting):STATE.mode==='attack'&&(id==='attacker'&&!waiting||id==='attphone'&&s.states.attphone)?'risk':s.sourceRisk===id?'risk':isActive?((s.tone==='bad'&&['attacker','app'].includes(id))?'risk':s.tone==='ok'&&(!s.noTransmission||s.title==='RP IDの検証・阻止'&&id==='browser')?'safe':'active'):dim?'dim':'';let base=n.base;const title=id==='attacker'&&STATE.scenario!=='phish'?'攻撃者':n.title;if(id==='auth')base=STATE.method==='pk'?'パスキー認証器':({totp:'TOTP生成アプリ',sms:'SMS受信（登録済み番号）',push:'認証アプリ（承認）',match:'認証アプリ（番号照合）'}[STATE.method]||'使用しない');if(id==='attacker')base=STATE.scenario==='phish'?'攻撃側の環境・偽サイト':'攻撃者側の操作環境';if(id==='server')base=STATE.method==='pk'?'公開鍵・署名等を検証':({totp:'PW・OTPを検証',sms:'PW・SMSコードを検証',push:'PW・承認応答を検証',match:'PW・番号照合を検証'}[STATE.method]||'パスワードを検証');if(STATE.method==='pk'&&STATE.mode==='normal'&&STATE.scenario==='register'&&id==='server')base='新規パスキー登録先';if(STATE.method==='pk'&&['normal','attack'].includes(STATE.mode)&&STATE.scenario!=='register'){if(id==='auth'||id==='server')base='RP ID: login.example.com';if(id==='browser'&&STATE.mode==='attack'&&STATE.scenario==='phish')base='偽サイト: fake.example.net';if(id==='browser'&&STATE.mode==='normal'&&STATE.step>=2&&STATE.step<=6)base='接続先: login.example.com';}let value=waiting?'攻撃未開始':(s.states[id]||'—');if(id==='auth'&&STATE.mode==='attack'&&STATE.scenario==='sim'&&s.states.attphone)base='元のSMS受信端末';html+=`<g data-node="${id}"><rect class="node ${cls}" x="${n.x}" y="${n.y}" width="${n.w}" height="${n.h}" rx="10"/>${icon(n.type,n.x+12,n.y+12)}${credentialChips(id,n)}${extraChips(id,n,s)}<text class="svg-title" x="${n.x+12}" y="${n.y+51}">${esc(title)}</text><text class="svg-sub" x="${n.x+12}" y="${n.y+73}">${esc(base)}</text><text class="svg-state" x="${n.x+12}" y="${n.y+94}">${esc(value)}</text></g>`;}
+ const drawRoute=(r,withCross=false)=>{if(!r)return;const [d,x,y,align='middle']=ROUTES[r.id];html+=`<path class="route ${r.kind}" d="${d}" ${!['ghost','pending'].includes(r.kind)?`marker-end="url(#arrow-${r.kind})"`:''} ${r.id==='ps'&&!['ghost','pending'].includes(r.kind)?`marker-start="url(#arrow-${r.kind})"`: ''}/><text x="${x}" y="${y}" text-anchor="${align}" class="route-label ${r.kind}">${['ah','ha','da'].includes(r.id)?(r.label.match(/.{1,7}/gu)||[]).map((v,i)=>`<tspan x="${x}" dy="${i?14:0}">${esc(v)}</tspan>`).join(''):esc(r.label)}</text>`;if(withCross){const ends={as:[765,265],sa:[215,265],ba:[410,245],bs:[765,235],sb:[535,145],hs:[765,310],sh:[535,335],ap:[765,151],bp:[765,101],pb:[535,101],bx:[210,225],pa:[210,220],ab:[410,170],ah:[288,336],ha:[212,309]};const startEnds={ba:[410,170],ab:[410,272],as:[215,265],sa:[765,265],ah:[214,310],ha:[285,335],hs:[535,334],sh:[765,311],pa:[765,152],ap:[215,218]};const [cx,cy]=(r.kind==='ghost'&&s.noTransmission?startEnds[r.id]:null)||ends[r.id]||[410,245];html+=`<circle cx="${cx}" cy="${cy}" r="10" fill="var(--panel)" stroke="${r.kind==='ghost'?'var(--muted)':'var(--ok)'}" stroke-width="2.5"/><path d="M${cx-4} ${cy-4}l8 8m0-8-8 8" stroke="${r.kind==='ghost'?'var(--muted)':'var(--ok)'}" stroke-width="2.5"/>`;}}; if(s.shadowRoute)drawRoute(s.shadowRoute,s.shadowRoute.kind==='ghost'); if(s.route){drawRoute(s.route,s.route.kind==='block');}
+ return html+'</svg>';}
+
+function steps(){return STATE.mode==='normal'?normal(STATE.method,STATE.scenario):attack(STATE.method,STATE.scenario)}
+function stop(){if(STATE.timer!==null)clearInterval(STATE.timer);STATE.timer=null;$('play').textContent='▷ 自動再生';}
+// Use the scenario model itself to distinguish inapplicable cases from blocked attacks.
+function applicable(m,a){return ORDER.includes(m)&&Object.hasOwn(ATTACKS,a)&&(['phish','db','replay'].includes(a)||a==='sim'&&m==='sms'||a==='fatigue'&&m==='push');}
+function config(){const options=STATE.mode==='normal'?{login:'正常な認証'}:Object.fromEntries(Object.entries(ATTACKS).filter(([a])=>applicable(STATE.method,a)));if(!(STATE.scenario in options))STATE.scenario=Object.keys(options)[0];$('scenario').innerHTML=Object.entries(options).map(([v,t])=>`<option value="${v}">${t}</option>`).join('');$('scenario').value=STATE.scenario;$('method').value=STATE.method;$('methodLabel').hidden=false;$('methodHint').textContent=METHODS[STATE.method].hint+(STATE.mode==='attack'?` ／ 対象シナリオ ${Object.keys(options).length}件`:'');attackInputs();}
+function renderBase(){$('frameLegend').textContent=['normal','attack'].includes(STATE.mode)?'枠：青＝処理中、緑＝正常認証成功・実際の拒否、赤＝攻撃・侵害':'色枠＝現在の作用点（結果は表示文で確認）';document.body.classList.toggle('shared-mode',['normal','attack'].includes(STATE.mode));document.body.classList.toggle('attack-mode',STATE.mode==='attack');document.querySelectorAll('[data-mode]').forEach(b=>{b.classList.toggle('selected',b.dataset.mode===STATE.mode);b.setAttribute('aria-pressed',String(b.dataset.mode===STATE.mode));});const cmp=STATE.mode==='attack'&&matrixView;$('config').hidden=cmp;$('sim').hidden=cmp;$('comparison').hidden=!cmp;$('backMatrix').hidden=STATE.mode!=='attack'||cmp;if(cmp){renderMatrix();return;}const list=steps(),s=list[STATE.step];$('diagram').innerHTML=diagram(s);$('diagramTitle').textContent=METHODS[STATE.method].name+' ／ '+$('scenario').selectedOptions[0].textContent;$('timeline').innerHTML=list.map((t,i)=>`<button class="step ${i===STATE.step?'selected':i<STATE.step?'done':''}" data-step="${i}" ${i===STATE.step?'aria-current="step"':''}><span class="num">${i+1}</span>${esc(t.title)}</button>`).join('');const timeline=$('timeline'),current=timeline.querySelector('.selected');if(current){const c=current.getBoundingClientRect(),t=timeline.getBoundingClientRect();if(c.bottom>t.bottom)timeline.scrollTop+=c.bottom-t.bottom;else if(c.top<t.top)timeline.scrollTop-=t.top-c.top;} $('stepTitle').textContent=s.title;$('description').textContent=s.desc;document.querySelector('.explain').scrollTop=0;$('result').className='result '+s.tone;$('result').textContent=s.status;$('condition').textContent='前提：PCは正規ユーザーが操作・ログイン済み。追加認証・パスキーは別のスマートフォンを使用。'+(STATE.mode==='attack'?({leak:'パスワードのみ漏洩。代替経路なし。',phish:'異なるドメインの偽サイト。代替経路なし。',sim:'電話番号の乗っ取り成立・SMSの追加制御なし。',fatigue:'本人が認証を開始していない。番号照合では番号を知らない。'}[STATE.scenario]||NEW_CASES[STATE.scenario]?.condition||''):(STATE.scenario==='register'?'認証サーバーで本人確認済み。正常なTLS通信。':'OIDC・初回ログイン・正常なTLS通信を想定。'));$('progress').textContent=`STEP ${STATE.step+1} / ${list.length}`;$('currentStep').textContent=s.title;$('currentStep').title=s.title;$('prev').disabled=STATE.step===0;$('next').disabled=STATE.step===list.length-1;const m=METHODS[STATE.method];$('factors').innerHTML=factorView(STATE.method);$('lesson').innerHTML=`<p>${esc(STATE.mode==='attack'&&NEW_CASES[STATE.scenario]?NEW_CASES[STATE.scenario].lesson:m.lesson)}</p><p class="sub">${STATE.method==='pk'?'鍵アイコンは主要な保持・利用場所を示す。':'図は指定された認証方式の仕組みに焦点を当てています。'}</p>`;if(STATE.mode==='attack'){$('condition').textContent='前提：'+attackCondition(STATE.method,STATE.scenario);$('lesson').innerHTML=`<p>${esc(ATTACK_LESSONS[STATE.scenario])}</p><p class="sub">代表条件での結果です。矢印は概念上の通信・手入力です。別の攻撃条件や実装差は評価対象外です。</p>`;}$('attackResult').hidden=STATE.mode!=='attack';$('attackResult').textContent=s.status;$('attackResult').title=s.status;$('attackResult').className='attack-result '+s.tone;}
+function normalIndex(m,a,s){
+ const n=normal(m,'login');
+ const title=s.normalTitle||({
+ // Extra relay/capture steps have no one-to-one normal counterpart.
+ }[s.title]||s.title);
+ return n.findIndex(t=>t.title===title);
+}
+function render(){
+ renderBase();
+ if(matrixView&&STATE.mode==='attack')return;
+ $('reset').disabled=false;$('play').disabled=false;
+ const b=$('stepCompare');b.hidden=!['normal','attack'].includes(STATE.mode);
+ b.setAttribute('aria-pressed','false');b.textContent='正常系と比較';b.disabled=true;b.title='';
+ if(STATE.mode!=='attack'){refView=false;return;}
+ const a=STATE.scenario,m=STATE.method,idx=STATE.step,s=steps()[idx],n=normal(m,'login'),i=normalIndex(m,a,s);
+ if(i<0){refView=false;b.textContent='対応STEPなし';b.title='漏洩・乗っ取りなど攻撃固有の処理';return;}
+ b.disabled=false;b.title='対応する正常系：'+n[i].title;
+ if(!refView)return;
+ const saved={mode:STATE.mode,scenario:STATE.scenario,step:STATE.step};
+ try{STATE.mode='normal';STATE.scenario='login';STATE.step=i;$('diagram').innerHTML=diagram(n[i]);}finally{Object.assign(STATE,saved);}
+ b.textContent='異常系に戻る';b.setAttribute('aria-pressed','true');
+ $('diagramTitle').textContent='正常系（比較表示） ／ '+METHODS[m].name;
+ $('currentStep').textContent='正常系：'+n[i].title;
+ $('currentStep').title=n[i].title;
+ $('progress').textContent=`正常 ${i+1}/${n.length} ｜ 異常 ${idx+1}/${steps().length}`;
+ $('stepTitle').textContent='正常系（比較）：'+n[i].title;
+ $('description').textContent=n[i].desc;
+ $('result').className='result '+n[i].tone;$('result').textContent=n[i].status;
+ $('condition').textContent='正常系の参照表示。下のSTEP一覧は比較元の異常系です。異常系に戻ると元の位置から再開できます。';
+ $('attackResult').textContent=n[i].status;$('attackResult').title=n[i].status;$('attackResult').className='attack-result '+n[i].tone;
+ for(const id of ['prev','next','reset','play'])$(id).disabled=true;
+}
+$('backMatrix').onclick=()=>{stop();refView=false;matrixView=true;render();window.scrollTo(0,0);};
+$('stepCompare').onclick=()=>{stop();refView=!refView;render();};
+function go(i){refView=false;stop();STATE.step=Math.max(0,Math.min(i,steps().length-1));render();}
+function choose(mode,method=STATE.method,scenario=null){refView=false;stop();matrixView=mode==='attack'&&scenario===null;STATE.mode=mode;STATE.method=ORDER.includes(method)?method:ORDER[0];STATE.scenario=scenario||(mode==='attack'?'replay':'login');STATE.step=0;config();render();}
+function renderMatrix(){const values=(a,m)=>{if(!applicable(m,a))return ['対象外','neutral'];const f=attack(m,a).at(-1);return f.tone==='ok'?['阻止','ok']:['不正認証成立','bad'];};$('matrix').innerHTML=`<table><thead><tr><th scope="col">攻撃シナリオ</th>${ORDER.map(m=>`<th scope="col">${esc(METHODS[m].name)}</th>`).join('')}</tr></thead><tbody>${Object.entries(ATTACKS).map(([a,t])=>`<tr><th scope="row">${esc(t)}</th>${ORDER.map(m=>{const [label,tone]=values(a,m);return tone==='neutral'?'<td><span class="neutral">対象外</span></td>':`<td><button class="${tone}" data-compare="${a}:${m}" aria-label="${esc(t)} ／ ${esc(METHODS[m].name)}：${label}。図解を再生">${label} ↗</button></td>`;}).join('')}</tr>`).join('')}</tbody></table>`;}
+
+
+$('method').addEventListener('change',e=>{refView=false;stop();STATE.method=e.target.value;STATE.step=0;config();render()});$('scenario').addEventListener('change',e=>{refView=false;stop();STATE.scenario=e.target.value;STATE.step=0;config();render()});$('reset').onclick=()=>go(0);$('prev').onclick=()=>go(STATE.step-1);$('next').onclick=()=>go(STATE.step+1);$('play').onclick=()=>{if(STATE.timer!==null){stop();return;}if(STATE.step===steps().length-1){STATE.step=0;render();}$('play').textContent='Ⅱ 一時停止';STATE.timer=setInterval(()=>{if(STATE.step<steps().length-1){STATE.step++;render();}if(STATE.step===steps().length-1)stop();},1800);};document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.mode)choose(b.dataset.mode);if(b.dataset.step!==undefined)go(Number(b.dataset.step));if(b.dataset.compare){const [a,m]=b.dataset.compare.split(':');if(!applicable(m,a))return;choose('attack',m,a);window.scrollTo(0,0);}});$('theme').onclick=()=>{document.body.classList.toggle('light');$('theme').textContent=document.body.classList.contains('light')?'ダーク':'ライト';};let font=0;$('font').onclick=()=>{font=(font+1)%3;const sizes=[14,15.4,16.8];document.documentElement.style.setProperty('--font',sizes[font]+'px');$('font').textContent='文字 '+[100,110,120][font]+'%';};config();render();
+
+function fitStage(){
+ if($('sim').hidden)return;
+ const main=document.querySelector('.workspace>.main');
+ const top=main.getBoundingClientRect().top+window.scrollY;
+ const fixed=[...main.children].filter(e=>e.id!=='diagram').reduce((sum,e)=>sum+e.getBoundingClientRect().height,0);
+ const available=Math.floor(document.documentElement.clientHeight-top-fixed-10);
+ const min=innerWidth<=760?160:200;
+ document.documentElement.style.setProperty('--stage-height',Math.max(min,available)+'px');
+}
+const stageObserver=new ResizeObserver(fitStage);
+for(const e of document.querySelectorAll('header,.tabs,#config,.main>.head,.main>.legend,.main>.controls'))stageObserver.observe(e);
+window.addEventListener('resize',fitStage);
+fitStage();
+</script></body></html>
