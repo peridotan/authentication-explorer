@@ -2,7 +2,45 @@
 
 更新日：2026-11-25
 
-## v1.0.0 公開用ファイルの確認（最新）
+## v1.0.0 公開環境での最終QA（最新）
+
+実施日：2026-11-25。公開URL：https://peridotan.github.io/authentication-explorer/
+
+**判定：公開環境の操作QAは合格。** GitHub Pagesへの公開は完了。タグ・GitHub Releaseの作成は所有者の最終承認待ち。全256 STEPの個別拡大目視には未確認部分が残る。
+
+- 初回CI #1は Ubuntu 26.04 と Playwright 1.55.0 の非互換によりChromium導入段階で失敗。教材・テスト本体の失敗ではない。Ubuntu 24.04に固定したCI #2は合格。
+- 公開環境専用の Playwright QA を `.github/workflows/live-qa.yml` に追加。コミット `364d03c0c8801ae256deefa863f37e467e01efb3` で通常QA、Pagesデプロイ、公開サイトQAの3ワークフローが成功した。HTML本体は変更していない。
+- 公開URLにブラウザーでアクセスし、HTTP 200とチェックアウトしたindex.htmlとのバイト単位の完全一致を検証した。公開HTML SHA-256: `1ed1ae370c4cd7f77e4fff32e7076711a21e3c6790f6595af907cbeb25f8c878`。
+
+| 検証項目 | 結果 |
+| --- | --- |
+| 公開URL・版表示・HTML一致 | 合格 |
+| 正常系 | 59 STEP 合格 |
+| 異常系 | 197 STEP 合格 |
+| 正常系比較 | 160箇所合格、比較対象外37箇所 |
+| 耐性比較表 | 17件往復合格、対象外8セル |
+| 不正認証成否 | 阻止8件・成立9件、期待値一致 |
+| 戻る・次へ・最初から | 全22フロー合格 |
+| 自動再生・一時停止・終了・再開 | 正常系PW、異常系パスキーのフィッシングの代表各1フロー合格 |
+| ライト／ダーク・文字サイズ | 合格 |
+| スマートフォン相当360px・390px | 代表シナリオの基本操作合格 |
+| JavaScript実行時例外 | 0件 |
+
+実行記録：
+
+- 初回CI（失敗）：https://github.com/peridotan/authentication-explorer/actions/runs/45571733603
+- 修正後CI（成功）：https://github.com/peridotan/authentication-explorer/actions/runs/45572144054
+- 通常QA（成功）：https://github.com/peridotan/authentication-explorer/actions/runs/45574620712
+- Pagesデプロイ（成功）：https://github.com/peridotan/authentication-explorer/actions/runs/45574620620
+- 公開サイトQA（成功）：https://github.com/peridotan/authentication-explorer/actions/runs/45574620579
+
+制約・残課題：全STEPの実描画画像取得・機械的検査と代表画面の目視は実施済みだが、全256画像の個別拡大目視は未完了。公開QAは操作・状態・結果の自動検証であり、これを全描画の目視確認と同一視しない。Node.js 20非推奨に関する checkout@v4 / setup-python@v5 の警告が残る（Node.js 24で実行されジョブは成功）。CI依存関係の更新は今後の保守項目。公開サイトQAは将来の更新時、デプロイ完了後に手動実行可能。
+
+以下は公開前の検証履歴であり、当時の未実施事項は上記の最新記録を優先する。
+
+---
+
+## v1.0.0 公開用ファイルの確認（履歴）
 
 所有者がMITライセンス（Copyright (c) 2026 peridotan）での公開を承認。rc3を基準に画面のバージョン表記、README、変更履歴、公開手順とライセンスを更新した。HTMLの差分はバージョン文字列2箇所のみ。テスト・認証フロー・画面描画・再生・比較ロジックは変更していない。
 
